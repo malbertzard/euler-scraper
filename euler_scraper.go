@@ -8,14 +8,78 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
-var programmingLanguages = map[string]string{
-	"golang":  "go",
-	"nim":     "nim",
-	"c":       "c",
-	"ruby":    "rb",
-	"python3": "py",
+type Config struct {
+	ProgrammingLanguages map[string]string `yaml:"programmingLanguages"`
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <problem_number> [<folder_path>]")
+		os.Exit(1)
+	}
+
+	var problemNumber string
+	var folderPath string
+
+	if len(os.Args) == 2 {
+		problemNumber = os.Args[1]
+	} else {
+		problemNumber = os.Args[1]
+		folderPath = os.Args[2]
+	}
+
+	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemNumber)
+
+	title, content, err := extractContent(url)
+	if err != nil {
+		fmt.Printf("Failed to extract content: %v\n", err)
+		os.Exit(1)
+	}
+
+	if folderPath == "" {
+		folderPath = "."
+	}
+
+	err = createFolders(problemNumber, folderPath)
+	if err != nil {
+		fmt.Printf("Failed to create folders: %v\n", err)
+		os.Exit(1)
+	}
+
+	problemFile := filepath.Join(folderPath, problemNumber, fmt.Sprintf("%s.md", dashifyTitle(title)))
+
+	err = writeToFile(problemFile, fmt.Sprintf("# %s\n\n%s", title, content))
+	if err != nil {
+		fmt.Printf("Failed to write problem file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Successfully written %s\n", problemFile)
+
+	codeFolder := filepath.Join(folderPath, problemNumber, "code")
+
+	config, err := loadConfig("config.yaml")
+	if err != nil {
+		fmt.Printf("Failed to load config: %v\n", err)
+		os.Exit(1)
+	}
+
+	for _, ext := range config.ProgrammingLanguages {
+		solutionFilename := fmt.Sprintf("%s.%s", "solution", ext)
+		solutionPath := filepath.Join(codeFolder, solutionFilename)
+
+		err = writeToFile(solutionPath, content)
+		if err != nil {
+			fmt.Printf("Failed to write solution file: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Successfully written %s\n", solutionPath)
+	}
 }
 
 func extractContent(url string) (string, string, error) {
@@ -86,70 +150,24 @@ func createFolders(problemNumber string, folderPath string) error {
 }
 
 func dashifyTitle(title string) string {
-	// Remove non-alphanumeric characters and replace spaces with dashes
 	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	dashified := reg.ReplaceAllString(title, "-")
 	dashified = strings.ToLower(strings.Trim(dashified, "-"))
 	return dashified
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run website_scraper.go <problem_number> [<folder_path>]")
-		os.Exit(1)
-	}
-
-	var problemNumber string
-	var folderPath string
-
-	if len(os.Args) == 2 {
-		problemNumber = os.Args[1]
-	} else {
-		problemNumber = os.Args[1]
-		folderPath = os.Args[2]
-	}
-
-	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemNumber)
-
-	title, content, err := extractContent(url)
+func loadConfig(filename string) (*Config, error) {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Printf("Failed to extract content: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 
-	if folderPath == "" {
-		folderPath = "."
-	}
-
-	err = createFolders(problemNumber, folderPath)
+	var config Config
+	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		fmt.Printf("Failed to create folders: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 
-	problemFile := filepath.Join(folderPath, problemNumber, fmt.Sprintf("%s.md", dashifyTitle(title)))
-
-	err = writeToFile(problemFile, fmt.Sprintf("# %s\n\n%s", title, content))
-	if err != nil {
-		fmt.Printf("Failed to write problem file: %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("Successfully written %s\n", problemFile)
-
-	codeFolder := filepath.Join(folderPath, problemNumber, "code")
-
-	for _, ext := range programmingLanguages {
-		solutionFilename := fmt.Sprintf("%s.%s", "solution", ext)
-		solutionPath := filepath.Join(codeFolder, solutionFilename)
-
-		err = writeToFile(solutionPath, content)
-		if err != nil {
-			fmt.Printf("Failed to write solution file: %v\n", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("Successfully written %s\n", solutionPath)
-	}
+	return &config, nil
 }
 

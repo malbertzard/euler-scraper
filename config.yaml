@@ -1,0 +1,6 @@
+programmingLanguages:
+  golang: go
+  nim: nim
+  c: c
+  ruby: rb
+  python3: py
