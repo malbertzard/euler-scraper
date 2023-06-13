@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -17,20 +18,19 @@ type Config struct {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <problem_number> [<folder_path>]")
+	problemNumberPtr := flag.String("p", "", "problem number")
+	folderPathPtr := flag.String("f", "", "folder path")
+	configPathPtr := flag.String("c", "", "config file path")
+	flag.Parse()
+
+	if *problemNumberPtr == "" {
+		fmt.Println("Usage: go run main.go -p <problem_number> [-f <folder_path>] [-c <config_file_path>]")
 		os.Exit(1)
 	}
 
-	var problemNumber string
-	var folderPath string
-
-	if len(os.Args) == 2 {
-		problemNumber = os.Args[1]
-	} else {
-		problemNumber = os.Args[1]
-		folderPath = os.Args[2]
-	}
+	problemNumber := *problemNumberPtr
+	folderPath := *folderPathPtr
+	configPath := *configPathPtr
 
 	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemNumber)
 
@@ -62,7 +62,7 @@ func main() {
 
 	codeFolder := filepath.Join(folderPath, problemNumber, "code")
 
-	config, err := loadConfig("config.yaml")
+	config, err := loadConfig(configPath)
 	if err != nil {
 		fmt.Printf("Failed to load config: %v\n", err)
 		os.Exit(1)
@@ -157,6 +157,10 @@ func dashifyTitle(title string) string {
 }
 
 func loadConfig(filename string) (*Config, error) {
+	if filename == "" {
+		return &Config{ProgrammingLanguages: map[string]string{}}, nil
+	}
+
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err

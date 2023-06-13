@@ -1,67 +1,63 @@
-# Project Euler Website Scraper
+# Euler Scraper
 
-<!--toc:start-->
-- [Project Euler Website Scraper](#project-euler-website-scraper)
-  - [Prerequisites](#prerequisites)
-  - [Usage](#usage)
-  - [Example](#example)
-  - [Project Structure](#project-structure)
-  - [License](#license)
-<!--toc:end-->
-
-This is a simple command-line tool written in Go that scrapes problem content from Project Euler website and generates a project structure for each problem, including the problem description and code files for multiple programming languages.
-
-## Prerequisites
-
-To run this tool, you need to have Go installed on your system. You can download and install Go from the official website: [https://golang.org](https://golang.org)
+Euler Scraper is a command-line tool for scraping problem content from Project Euler and saving it to local files.
 
 ## Usage
 
 ```
-go run website_scraper.go <problem_number> [<folder_path>]
+go run main.go -p <problem_number> [-f <folder_path>] [-c <config_file_path>]
 ```
 
-- `<problem_number>`: The specific problem number you want to scrape from Project Euler.
-- `<folder_path>` (optional): The path to the folder where you want to create the project. If not provided, the current directory will be used.
+The tool supports the following command-line flags:
 
-## Example
+- `-p <problem_number>`: Specifies the problem number to scrape from Project Euler. This flag is required.
+- `-f <folder_path>`: Specifies the folder path where the scraped content will be saved. If not provided, the current directory will be used.
+- `-c <config_file_path>`: Specifies the path to a YAML config file that defines the programming languages and their corresponding file extensions. If not provided, the tool will use a default configuration.
 
-To scrape problem 1 and create the project in the current directory, run the following command:
+## Configuration File
 
-```
-go run website_scraper.go 1
-```
+The optional configuration file allows you to define the programming languages and their corresponding file extensions. The file should be in YAML format and have the following structure:
 
-To scrape problem 2 and create the project in a specific folder, run the following command:
-
-```
-go run website_scraper.go 2 /path/to/projects
-```
-
-## Project Structure
-
-After running the tool, it will create a project structure for the specified problem in the specified folder (or the current directory). The structure will be as follows:
-
-```
-<folder_path>/
-└── <problem_number>/
-    ├── <dashified_title>.md
-    └── code/
-        ├── solution.go
-        ├── solution.nim
-        ├── solution.c
-        ├── solution.rb
-        └── solution.py
+```yaml
+programmingLanguages:
+  language1: extension1
+  language2: extension2
+  ...
 ```
 
-- `<folder_path>`: The folder where the project is created. If not provided, the current directory is used.
-- `<problem_number>`: The problem number specified during execution.
-- `<dashified_title>.md`: The markdown file containing the problem description.
-- `code/`: The folder containing code files for different programming languages.
-- `solution.go`, `solution.nim`, `solution.c`, `solution.rb`, `solution.py`: Sample code files for each programming language.
+For example:
 
-You can modify the code files according to your solutions for the specific problem.
+```yaml
+programmingLanguages:
+  golang: go
+  python: py
+  ruby: rb
+```
 
-## License
+When the configuration file is provided, the tool will create solution files in the specified programming languages based on the defined extensions.
 
-This project is licensed under the [MIT License](LICENSE).
+## Examples
+
+Scrape problem 1 and save the content to the current directory:
+
+```
+go run main.go -p 1
+```
+
+Scrape problem 1 and save the content to a specific folder:
+
+```
+go run main.go -p 1 -f /path/to/folder
+```
+
+Scrape problem 1 and use a custom configuration file:
+
+```
+go run main.go -p 1 -c /path/to/config.yaml
+```
+
+## Dependencies
+
+The tool relies on the following external package:
+
+- `gopkg.in/yaml.v2`: A YAML parser for Go. You can install it using the command `go get gopkg.in/yaml.v2`.
