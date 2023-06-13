@@ -52,7 +52,15 @@ func extractContent(url string) (string, string, error) {
 
 	content := matches[1]
 
-	return "", strings.TrimSpace(content), nil
+	reTitle := regexp.MustCompile(`(?s)<h2>(.*?)</h2>`)
+	titleMatches := reTitle.FindStringSubmatch(body)
+	if len(titleMatches) < 2 {
+		return "", "", fmt.Errorf("failed to extract problem title")
+	}
+
+	title := titleMatches[1]
+
+	return strings.TrimSpace(title), strings.TrimSpace(content), nil
 }
 
 func writeToFile(filepath string, content string) error {
@@ -94,7 +102,7 @@ func main() {
 	problemNumber := os.Args[1]
 	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemNumber)
 
-	_, content, err := extractContent(url)
+	title, content, err := extractContent(url)
 	if err != nil {
 		fmt.Printf("Failed to extract content: %v\n", err)
 		os.Exit(1)
@@ -106,22 +114,25 @@ func main() {
 		os.Exit(1)
 	}
 
+	problemFile := filepath.Join(problemNumber, fmt.Sprintf("%s.md", dashifyTitle(title)))
+
+	err = writeToFile(problemFile, fmt.Sprintf("# %s\n\n%s", title, content))
+	if err != nil {
+		fmt.Printf("Failed to write problem file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Successfully written %s\n", problemFile)
+
 	codeFolder := filepath.Join(problemNumber, "code")
 
-	for lang, ext := range programmingLanguages {
-		dashifiedTitle := dashifyTitle(lang)
+	for _, ext := range programmingLanguages {
 		solutionFilename := fmt.Sprintf("%s.%s", "solution", ext)
-		solutionPath := filepath.Join(codeFolder, dashifiedTitle, solutionFilename)
-
-		err = os.MkdirAll(filepath.Dir(solutionPath), 0755)
-		if err != nil {
-			fmt.Printf("Failed to create folder: %v\n", err)
-			os.Exit(1)
-		}
+		solutionPath := filepath.Join(codeFolder, solutionFilename)
 
 		err = writeToFile(solutionPath, content)
 		if err != nil {
-			fmt.Printf("Failed to write to file: %v\n", err)
+			fmt.Printf("Failed to write solution file: %v\n", err)
 			os.Exit(1)
 		}
 

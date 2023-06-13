@@ -38,7 +38,7 @@ As well as creating the files for the diffrent programming languages.
 
 5. The program will scrape the problem content from the Project Euler website and save it as a Markdown file. The Markdown file will be located in the directory `<problem_number>/<title>.md`, where `<programming_language>` is the programming language and `<title>` is the dashified version of the language name.
 
-   For example, if you run the command `./euler_scraper 1` for problem 1 and the Go language, the Markdown file will be saved as `1/x.md`.
+   For example, if you run the command `./euler_scraper 1` for problem 1 and the Go language, the Markdown file will be saved as `1/'dashified-problem-title'.md`.
 
 ## License
 
