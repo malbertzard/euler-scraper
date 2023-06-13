@@ -73,8 +73,8 @@ func writeToFile(filepath string, content string) error {
 	return nil
 }
 
-func createFolders(problemNumber string) error {
-	problemFolder := filepath.Join(".", problemNumber)
+func createFolders(problemNumber string, folderPath string) error {
+	problemFolder := filepath.Join(folderPath, problemNumber)
 	codeFolder := filepath.Join(problemFolder, "code")
 
 	err := os.MkdirAll(codeFolder, 0755)
@@ -95,11 +95,20 @@ func dashifyTitle(title string) string {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run website_scraper.go <problem_number>")
+		fmt.Println("Usage: go run website_scraper.go <problem_number> [<folder_path>]")
 		os.Exit(1)
 	}
 
-	problemNumber := os.Args[1]
+	var problemNumber string
+	var folderPath string
+
+	if len(os.Args) == 2 {
+		problemNumber = os.Args[1]
+	} else {
+		problemNumber = os.Args[1]
+		folderPath = os.Args[2]
+	}
+
 	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemNumber)
 
 	title, content, err := extractContent(url)
@@ -108,13 +117,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = createFolders(problemNumber)
+	if folderPath == "" {
+		folderPath = "."
+	}
+
+	err = createFolders(problemNumber, folderPath)
 	if err != nil {
 		fmt.Printf("Failed to create folders: %v\n", err)
 		os.Exit(1)
 	}
 
-	problemFile := filepath.Join(problemNumber, fmt.Sprintf("%s.md", dashifyTitle(title)))
+	problemFile := filepath.Join(folderPath, problemNumber, fmt.Sprintf("%s.md", dashifyTitle(title)))
 
 	err = writeToFile(problemFile, fmt.Sprintf("# %s\n\n%s", title, content))
 	if err != nil {
@@ -124,7 +137,7 @@ func main() {
 
 	fmt.Printf("Successfully written %s\n", problemFile)
 
-	codeFolder := filepath.Join(problemNumber, "code")
+	codeFolder := filepath.Join(folderPath, problemNumber, "code")
 
 	for _, ext := range programmingLanguages {
 		solutionFilename := fmt.Sprintf("%s.%s", "solution", ext)
