@@ -120,12 +120,6 @@ func extractContent(url string) (string, string, error) {
 		return "", "", err
 	}
 	body := string(bodyBytes)
-	re := regexp.MustCompile(`(?s)<div class="problem_content" role="problem">(.*?)</div>`)
-	matches := re.FindStringSubmatch(body)
-	if len(matches) < 2 {
-		return "", "", fmt.Errorf("failed to extract problem content")
-	}
-	content := matches[1]
 
 	// Extract problem title from response body
 	reTitle := regexp.MustCompile(`(?s)<h2>(.*?)</h2>`)
@@ -135,12 +129,55 @@ func extractContent(url string) (string, string, error) {
 	}
 	title := titleMatches[1]
 
+	// Extract problem content from response body
+	contentStart := strings.Index(body, `<div class="problem_content" role="problem">`)
+	if contentStart == -1 {
+		return "", "", fmt.Errorf("failed to find problem content")
+	}
+	contentStart += len(`<div class="problem_content" role="problem">`)
+
+	openDivCount := 1
+	contentEnd := contentStart
+
+	for i := contentStart; i < len(body); i++ {
+		if body[i] == '<' {
+			if strings.HasPrefix(body[i:], "<div") {
+				openDivCount++
+			} else if strings.HasPrefix(body[i:], "</div") {
+				openDivCount--
+				if openDivCount == 0 {
+					contentEnd = i
+					break
+				}
+			}
+		}
+	}
+
+	content := body[contentStart:contentEnd]
+
 	return strings.TrimSpace(title), strings.TrimSpace(content), nil
 }
 
 // writeToFile function writes content to a file
 func writeToFile(filepath string, content string) error {
-	// Remove HTML tags from content
+	// Convert <ul> tags to markdown list
+	content = strings.ReplaceAll(content, "<ul>", "")
+	content = strings.ReplaceAll(content, "</ul>", "")
+	content = strings.ReplaceAll(content, "<li>", "- ")
+	content = strings.ReplaceAll(content, "</li>", "\n")
+
+	// Convert <br> tags to new lines
+	content = strings.ReplaceAll(content, "<br>", "\n")
+
+	// Convert <b> tags to bold (surround with '**')
+	content = strings.ReplaceAll(content, "<b>", "**")
+	content = strings.ReplaceAll(content, "</b>", "**")
+
+	// Convert <i> tags to italic (surround with '_')
+	content = strings.ReplaceAll(content, "<i>", "_")
+	content = strings.ReplaceAll(content, "</i>", "_")
+
+	// Remove remaining HTML tags from content
 	re := regexp.MustCompile(`<(.*?)>`)
 	content = re.ReplaceAllString(content, "")
 
