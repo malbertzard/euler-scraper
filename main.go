@@ -140,11 +140,16 @@ func extractContent(url string) (string, string, error) {
 
 // writeToFile function writes content to a file
 func writeToFile(filepath string, content string) error {
+	// Remove HTML tags from content
+	re := regexp.MustCompile(`<(.*?)>`)
+	content = re.ReplaceAllString(content, "")
+
 	data := []byte(content)
 	err := ioutil.WriteFile(filepath, data, 0644)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
