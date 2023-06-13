@@ -61,6 +61,11 @@ func main() {
 	}
 	fmt.Printf("Successfully written %s\n", problemFile)
 
+	// Set default config path if not provided
+	if configPath == "" {
+		configPath = "config.yaml"
+	}
+
 	// Write solution files for each programming language specified in config file
 	codeFolder := filepath.Join(folderPath, problemNumber, "code")
 	config, err := loadConfig(configPath)
