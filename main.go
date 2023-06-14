@@ -70,7 +70,7 @@ func main() {
 
 	codeFolder := filepath.Join(folderPath, problemNumber, config.SolutionFolderName)
 	for _, ext := range config.ProgrammingLanguages {
-		solutionFilename := fmt.Sprintf("%s.%s", "solution", ext)
+		solutionFilename := fmt.Sprintf("%s.%s", config.SolutionFileName, ext)
 		solutionPath := filepath.Join(codeFolder, solutionFilename)
 		err = helper.WriteToFile(solutionPath, content)
 		if err != nil {
