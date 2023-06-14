@@ -19,6 +19,7 @@ The tool supports the following command-line flags:
 The optional configuration file allows you to define the programming languages and their corresponding file extensions. The file should be in YAML format and have the following structure:
 
 ```yaml
+fileName: name
 folderName: name
 programmingLanguages:
   language1: extension1
@@ -29,6 +30,7 @@ programmingLanguages:
 For example:
 
 ```yaml
+fileName: solution
 folderName: solutions
 programmingLanguages:
   golang: go
