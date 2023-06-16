@@ -5,7 +5,7 @@ Euler Scraper is a command-line tool for scraping problem content from Project E
 ## Usage
 
 ```
-go run main.go -p <problem_number> [-f <folder_path>] [-c <config_file_path>]
+go run main.go -p <problem_number> [-r <problem_number_end>] [-f <folder_path>] [-c <config_file_path>]
 ```
 
 The tool supports the following command-line flags:
