@@ -11,6 +11,7 @@ go run main.go -p <problem_number> [-f <folder_path>] [-c <config_file_path>]
 The tool supports the following command-line flags:
 
 - `-p <problem_number>`: Specifies the problem number to scrape from Project Euler. This flag is required.
+- `-r <problem_number_end>`: Specifies the range of problem numbers to scrape from Project Euler.
 - `-f <folder_path>`: Specifies the folder path where the scraped content will be saved. If not provided, the current directory will be used.
 - `-c <config_file_path>`: Specifies the path to a YAML config file that defines the programming languages and their corresponding file extensions. If not provided, the tool will use a default configuration.
 
