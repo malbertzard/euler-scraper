@@ -9,8 +9,8 @@ import (
 )
 
 // ExtractContent function extracts the problem title and content from the Project Euler website
-func ExtractContent(problemNumber string) (string, string, error) {
-	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemNumber)
+func ExtractContent(problemString string) (string, string, error) {
+	url := fmt.Sprintf("https://projecteuler.net/problem=%s", problemString)
 
 	body, err := fetchURL(url)
 	if err != nil {
