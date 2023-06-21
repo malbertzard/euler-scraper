@@ -105,4 +105,3 @@ func extractContent(body string) (string, error) {
 
 	return content, nil
 }
-

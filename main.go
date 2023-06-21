@@ -99,12 +99,12 @@ func scrapeProblem(problemNumber int, folderPath string, config *model.Config) {
 	for _, ext := range config.ProgrammingLanguages {
 		solutionFilename := fmt.Sprintf("%s.%s", config.SolutionFileName, ext)
 		solutionPath := filepath.Join(codeFolder, solutionFilename)
-        file, err := os.Create(solutionPath)
+		file, err := os.Create(solutionPath)
 		if err != nil {
 			fmt.Printf("Failed to write solution file: %v\n", err)
 			os.Exit(1)
 		}
-        defer file.Close()
+		defer file.Close()
 		fmt.Printf("Successfully written %s\n", solutionPath)
 	}
 }
