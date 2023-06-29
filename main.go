@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"sync"
 )
 
@@ -67,7 +66,7 @@ func scrapeProblemRange(start int, end int, folderPath string, config *model.Con
 
 func scrapeProblem(problemNumber int, folderPath string, config *model.Config) {
 	// Extract problem content from Project Euler website
-	problemString := strconv.Itoa(problemNumber)
+    problemString := fmt.Sprintf("%03d", problemNumber)
 	title, content, err := helper.ExtractContent(problemString)
 	if err != nil {
 		fmt.Printf("Failed to extract content: %v\n", err)
